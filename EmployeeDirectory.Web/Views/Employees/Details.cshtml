@@ -1,0 +1,74 @@
+﻿@model EmployeeDirectory.Data.Entities.Employee
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Employee</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Office.OfficeName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Office.OfficeName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.FirstName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.FirstName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.LastName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LastName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Title)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Title)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.VacationHours)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.VacationHours)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ChangeUser)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ChangeUser)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ChangeDate)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ChangeDate)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.EmployeeNo }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
