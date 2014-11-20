@@ -30,15 +30,20 @@ namespace EmployeeDirectory.Data
             return EntitySet.Find(id);
         }
 
-        public virtual void Add(T entity)
+        public virtual T Add(T item)
         {
-            EntitySet.Add(entity);
+            EntitySet.Add(item);
+            Context.SaveChanges();
+            return item;
+
         }
 
-        public virtual void Update(T item)
+        public virtual T Update(T item)
         {
             EntitySet.Attach(item);
             Context.Entry(item).State = EntityState.Modified;
+            Context.SaveChanges();
+            return item;
         }
 
         public virtual void Delete(object id)
@@ -54,6 +59,7 @@ namespace EmployeeDirectory.Data
                 EntitySet.Attach(item);
             }
             EntitySet.Remove(item);
+            Context.SaveChanges();
         }
     }
 }

@@ -13,9 +13,9 @@ namespace EmployeeDirectory.Data
 
         T GetByKey(params object[] id);
 
-        void Add(T entity);
+        T Add(T item);
 
-        void Update(T item);
+        T Update(T item);
 
         void Delete(object id);
 

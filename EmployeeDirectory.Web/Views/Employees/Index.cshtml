@@ -7,9 +7,59 @@
 
 <h2>Index</h2>
 
-<p>
-    @Html.ActionLink("Create New", "Create")
-</p>
+@using (Html.BeginForm())
+{ 
+<p>Search: @Html.TextBox("EmployeeSearch")     
+@Html.Hidden("EmployeeNo")
+<input type="submit" value="Search" /></p>
+}
+
+@section scripts {
+<script type="text/javascript">
+    $(function () {
+        $("#EmployeeSearch2").autocomplete({
+            source: "/Employees/AutocompleteSearch",
+            minLength: 1,
+            select: function (event, ui) {
+                if (ui.item) {
+                    $("#EmployeeSearch2").val(ui.item.value);
+                    $("form").submit();
+                }
+            }
+        });
+    });
+</script>
+<script type="text/javascript">
+var url = '@Url.Action("AutocompleteSearch", "Employees")';
+$('#EmployeeSearch').autocomplete({
+    source: function (request, response) {
+        $.ajax({
+            url: url,
+            data: { term: request.term },
+            dataType: 'json',
+            type: 'GET',
+        success: function (data) {
+            response($.map(data, 
+        function (item) {
+            return {
+                label: item.Name,
+                value1: item.EmployeeNo
+            }
+        }));
+        }
+    })
+},
+    select: 
+function (event, ui) {
+    $('#EmployeeSearch').val(ui.item.label);
+    $('#EmployeeNo').val(ui.item.value1);
+    return false;
+},
+    minLength: 1
+});
+</script>
+}
+
 <table class="table">
     <tr>
         <th>
@@ -52,3 +102,5 @@
 </table>
 
 @Html.PagedListPager((Model as PagedList.IPagedList), page => Url.Action("Index", new { page }))
+
+

@@ -39,6 +39,24 @@ namespace EmployeeDirectory.Web
             return View(EmployeeRepository.Get().OrderBy(a => a.LastName).ThenBy(b => b.FirstName).ToPagedList(pageNumber, pageSize));
         }
 
+        [HttpPost]
+        public ActionResult Index(string employeeSearch, string employeeNo, int? page)
+        {
+            int pageSize = 25;
+            int pageNumber = (page ?? 1);
+            if (!string.IsNullOrEmpty(employeeNo))
+            {
+                int empNo;
+                int.TryParse(employeeNo, out empNo);
+                return View(EmployeeRepository.Get().Where(x => x.EmployeeNo == empNo).ToPagedList(pageNumber, pageSize));
+            }
+            else
+            {
+                return View(EmployeeRepository.Get().Where(x => x.Name.Contains(employeeSearch)).OrderBy(a => a.LastName).ThenBy(b => b.FirstName).ToPagedList(pageNumber, pageSize));            
+            }
+
+        }
+
         // GET: Employees/Details/5
         public ActionResult Details(int? id)
         {
@@ -68,13 +86,12 @@ namespace EmployeeDirectory.Web
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
-        public ActionResult Create([Bind(Include = "EmployeeNo,FirstName,LastName,Title,OfficeId,VacationHours,ChangeDate")] Employee employee)
+        public ActionResult Create(Employee employee)
         {
             if (ModelState.IsValid)
             {
-                EmployeeRepository.Add(employee);
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                employee = EmployeeRepository.Add(employee);
+                return RedirectToAction("Details", "Employees", new { id = employee.EmployeeNo });
             }
 
             ViewBag.OfficeId = new SelectList(OfficeRepository.EntitySet, "OfficeId", "OfficeName", employee.OfficeId);
@@ -104,13 +121,12 @@ namespace EmployeeDirectory.Web
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
-        public ActionResult Edit([Bind(Include = "EmployeeNo,FirstName,LastName,Title,OfficeId,VacationHours,ChangeUser,ChangeDate")] Employee employee)
+        public ActionResult Edit(Employee employee)
         {
             if (ModelState.IsValid)
             {
-                db.Entry(employee).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                employee = EmployeeRepository.Update(employee);
+                return RedirectToAction("Details", "Employees", new {id = employee.EmployeeNo});
             }
             ViewBag.OfficeId = new SelectList(OfficeRepository.EntitySet, "OfficeId", "OfficeName", employee.OfficeId);
             return View(employee);
@@ -140,8 +156,13 @@ namespace EmployeeDirectory.Web
         {
             Employee employee = EmployeeRepository.GetByKey(id);
             EmployeeRepository.Delete(employee);
-            db.SaveChanges();
             return RedirectToAction("Index");
+        }
+
+        public JsonResult AutocompleteSearch(string term)
+        {
+            var suggestions = EmployeeRepository.Get().ToList().Where(x => x.Name.ToLower().Contains(term.ToLower()));
+            return Json(suggestions, JsonRequestBehavior.AllowGet);
         }
 
         protected override void Dispose(bool disposing)

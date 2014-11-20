@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace EmployeeDirectory.Data.Entities
 {
@@ -16,20 +16,24 @@ namespace EmployeeDirectory.Data.Entities
         [Required]
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [DisplayName("Employee Number")]
         public int EmployeeNo { get; set; }
 
         [DataMember]
         [Required]
         [MaxLength(50)]
+        [DisplayName("First Name")]
         public String FirstName { get; set; }
 
         [DataMember]
         [Required]
         [MaxLength(50)]
+        [DisplayName("Last Name")]
         public String LastName { get; set; }
 
         [DataMember]
         [MaxLength(100)]
+        [DisplayName("Title")]
         public String Title { get; set; }
 
         [DataMember]
@@ -38,15 +42,14 @@ namespace EmployeeDirectory.Data.Entities
         public virtual Office Office { get; set; }
 
         [DataMember]
+        [DisplayName("Vacation Hours")]
         public int VacationHours { get; set; }
 
-        [DataMember]
-        [Required]
-        [MaxLength(256)]
-        public string ChangeUser { get; set; }
-
-        [DataMember]
-        [Required]
-        public DateTime ChangeDate { get; set; }
+        [DisplayName("Name")]
+        public string Name
+        {
+            get { return FirstName + " " + LastName; }
+            private set { value = FirstName + " " + LastName; }
+        }
     }
 }
