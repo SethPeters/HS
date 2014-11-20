@@ -18,12 +18,18 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                @Html.ActionLink("Employee Directory", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+                @Html.ActionLink("Employee Directory", "Index", "Employees", new { area = "" }, new { @class = "navbar-brand" })
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("Home", "Index", "Home")</li>
                     <li>@Html.ActionLink("List Employees", "Index", "Employees")</li>
+                    <li class="dropdown">
+                        <div class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Human Resources<span class="caret"></span></div>
+                        <ul class="dropdown-menu" role="menu">
+                            <li>@Html.ActionLink("List Employees", "Index", "Employees")</li>
+                            <li>@Html.ActionLink("List Employees", "Index", "Employees")</li>
+                        </ul>
+                    </li>
                 </ul>
                 @Html.Partial("_LoginPartial")
             </div>

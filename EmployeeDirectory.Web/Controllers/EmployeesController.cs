@@ -1,5 +1,7 @@
 ﻿using EmployeeDirectory.Data;
 using EmployeeDirectory.Data.Entities;
+using EmployeeDirectory.Web.Models;
+using PagedList;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -13,13 +15,28 @@ namespace EmployeeDirectory.Web
 {
     public class EmployeesController : Controller
     {
-        private DataContext db = new DataContext();
+        public EmployeesController()
+        {
+            EmployeeRepository = new Repository<Employee>(db);
+            OfficeRepository = new Repository<Office>(db);
+        }
+
+        public EmployeesController(IRepository<Employee> empRepository, Repository<Office> officeRepository)
+        {
+            EmployeeRepository = empRepository;
+            OfficeRepository = officeRepository;
+        }
+
+        private ApplicationDbContext db = new ApplicationDbContext();
+        private IRepository<Employee> EmployeeRepository;
+        private IRepository<Office> OfficeRepository;
 
         // GET: Employees
-        public ActionResult Index()
+        public ActionResult Index(int? page)
         {
-            var employees = db.Employees.Include(e => e.Office);
-            return View(employees.ToList());
+            int pageSize = 25;
+            int pageNumber = (page ?? 1);
+            return View(EmployeeRepository.Get().OrderBy(a => a.LastName).ThenBy(b => b.FirstName).ToPagedList(pageNumber, pageSize));
         }
 
         // GET: Employees/Details/5
@@ -29,7 +46,7 @@ namespace EmployeeDirectory.Web
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Employee employee = db.Employees.Find(id);
+            Employee employee = EmployeeRepository.GetByKey(id);
             if (employee == null)
             {
                 return HttpNotFound();
@@ -41,7 +58,7 @@ namespace EmployeeDirectory.Web
         [Authorize]
         public ActionResult Create()
         {
-            ViewBag.OfficeId = new SelectList(db.Offices, "OfficeId", "OfficeName");
+            ViewBag.OfficeId = new SelectList(OfficeRepository.EntitySet, "OfficeId", "OfficeName");
             return View();
         }
 
@@ -51,16 +68,16 @@ namespace EmployeeDirectory.Web
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
-        public ActionResult Create([Bind(Include = "EmployeeNo,FirstName,LastName,Title,OfficeId,VacationHours,ChangeUser,ChangeDate")] Employee employee)
+        public ActionResult Create([Bind(Include = "EmployeeNo,FirstName,LastName,Title,OfficeId,VacationHours,ChangeDate")] Employee employee)
         {
             if (ModelState.IsValid)
             {
-                db.Employees.Add(employee);
+                EmployeeRepository.Add(employee);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
 
-            ViewBag.OfficeId = new SelectList(db.Offices, "OfficeId", "OfficeName", employee.OfficeId);
+            ViewBag.OfficeId = new SelectList(OfficeRepository.EntitySet, "OfficeId", "OfficeName", employee.OfficeId);
             return View(employee);
         }
 
@@ -72,12 +89,12 @@ namespace EmployeeDirectory.Web
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Employee employee = db.Employees.Find(id);
+            Employee employee = EmployeeRepository.GetByKey(id);
             if (employee == null)
             {
                 return HttpNotFound();
             }
-            ViewBag.OfficeId = new SelectList(db.Offices, "OfficeId", "OfficeName", employee.OfficeId);
+            ViewBag.OfficeId = new SelectList(OfficeRepository.EntitySet, "OfficeId", "OfficeName", employee.OfficeId);
             return View(employee);
         }
 
@@ -95,7 +112,7 @@ namespace EmployeeDirectory.Web
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
-            ViewBag.OfficeId = new SelectList(db.Offices, "OfficeId", "OfficeName", employee.OfficeId);
+            ViewBag.OfficeId = new SelectList(OfficeRepository.EntitySet, "OfficeId", "OfficeName", employee.OfficeId);
             return View(employee);
         }
 
@@ -107,7 +124,7 @@ namespace EmployeeDirectory.Web
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Employee employee = db.Employees.Find(id);
+            Employee employee = EmployeeRepository.GetByKey(id);
             if (employee == null)
             {
                 return HttpNotFound();
@@ -121,8 +138,8 @@ namespace EmployeeDirectory.Web
         [Authorize]
         public ActionResult DeleteConfirmed(int id)
         {
-            Employee employee = db.Employees.Find(id);
-            db.Employees.Remove(employee);
+            Employee employee = EmployeeRepository.GetByKey(id);
+            EmployeeRepository.Delete(employee);
             db.SaveChanges();
             return RedirectToAction("Index");
         }

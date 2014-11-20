@@ -1,4 +1,5 @@
-﻿@model IEnumerable<EmployeeDirectory.Data.Entities.Employee>
+﻿@using PagedList.Mvc;
+@model IEnumerable<EmployeeDirectory.Data.Entities.Employee>
 
 @{
     ViewBag.Title = "Index";
@@ -49,3 +50,5 @@
 }
 
 </table>
+
+@Html.PagedListPager((Model as PagedList.IPagedList), page => Url.Action("Index", new { page }))

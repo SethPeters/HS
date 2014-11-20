@@ -35,9 +35,7 @@ namespace EmployeeDirectory.Data.Entities
         [DataMember]
         public string OfficeId { get; set; }
 
-        [DataMember]
-        [ForeignKey("OfficeId")]
-        public Office Office { get; set; }
+        public virtual Office Office { get; set; }
 
         [DataMember]
         public int VacationHours { get; set; }

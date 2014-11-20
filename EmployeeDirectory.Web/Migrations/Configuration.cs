@@ -1,5 +1,6 @@
 namespace EmployeeDirectory.Web.Migrations
 {
+    using EmployeeDirectory.Data.Entities;
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Migrations;
@@ -9,24 +10,36 @@ namespace EmployeeDirectory.Web.Migrations
     {
         public Configuration()
         {
-            AutomaticMigrationsEnabled = false;
+            AutomaticMigrationsEnabled = true;
             ContextKey = "EmployeeDirectory.Web.Models.ApplicationDbContext";
         }
 
         protected override void Seed(EmployeeDirectory.Web.Models.ApplicationDbContext context)
         {
-            //  This method will be called after migrating to the latest version.
+            context.Offices.AddOrUpdate(o => o.OfficeId
+                , new Office { OfficeId = "HOUTX", OfficeName = "Houston", City = "Houston", State = "TX", ChangeDate = DateTime.Now, ChangeUser = "Seth Peters" }
+                , new Office { OfficeId = "AUSTX", OfficeName = "Austin", City = "Austin", State = "TX", ChangeDate = DateTime.Now, ChangeUser = "Seth Peters" }
+                );
+            context.Employees.AddOrUpdate(
+                  new Employee { FirstName = "Seth", LastName = "Peters", OfficeId = "HOUTX", Title = "Architect", ChangeDate = DateTime.Now, ChangeUser = "Seth Peters" }
+                , new Employee { FirstName = "Michael", LastName = "Smith", OfficeId = "HOUTX", Title = "Architect", ChangeDate = DateTime.Now, ChangeUser = "Seth Peters" }
+                , new Employee { FirstName = "Evan", LastName = "James", OfficeId = "AUSTX", Title = "Project Manager", ChangeDate = DateTime.Now, ChangeUser = "Seth Peters" }
+                );
+            string[] fname = { "Abby", "Albert", "Ashley", "Brian", "Ben", "Chris", "Charles", "Donald", "Emily", "Eric", "Herman", "John", "James", "Jennifer", "Jessica", "Lee",
+                                 "Michael", "Mark", "Michelle", "Robert", "Ruby", "Scott", "Stephen", "Steve", "Thomas", "Tracy" };
+            string[] lname = { "Smith", "Jones", "Lee", "Chow", "Nguyen", "Michaels", "Roberts", "Peterson", "Young", "Brown", "Bennett", "Bryant", "Johnson" };
+            string[] title = { "Manager", "Architect", "Consultant", "Administrator", "Vice President" };
+            string[] office = { "HOUTX", "AUSTX" };
 
-            //  You can use the DbSet<T>.AddOrUpdate() helper extension method 
-            //  to avoid creating duplicate seed data. E.g.
-            //
-            //    context.People.AddOrUpdate(
-            //      p => p.FullName,
-            //      new Person { FullName = "Andrew Peters" },
-            //      new Person { FullName = "Brice Lambson" },
-            //      new Person { FullName = "Rowan Miller" }
-            //    );
-            //
+            int i = 0;
+            foreach (var f in fname)
+            {
+                foreach (var l in lname)
+                {
+                    i++;
+                    context.Employees.AddOrUpdate(new Employee { FirstName = f, LastName = l, OfficeId = office[i % office.Count()], Title = title[i % title.Count()], ChangeDate = DateTime.Now, ChangeUser = "Seth Peters" });
+                }
+            }
         }
     }
 }

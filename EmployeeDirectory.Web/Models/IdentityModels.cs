@@ -1,8 +1,10 @@
-﻿using System.Data.Entity;
-using System.Security.Claims;
-using System.Threading.Tasks;
+﻿using EmployeeDirectory.Data.Entities;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using System.Data.Entity;
+using System.Data.Entity.ModelConfiguration.Conventions;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace EmployeeDirectory.Web.Models
 {
@@ -23,6 +25,16 @@ namespace EmployeeDirectory.Web.Models
         public ApplicationDbContext()
             : base("DefaultConnection", throwIfV1Schema: false)
         {
+        }
+
+        public DbSet<Employee> Employees { get; set; }
+
+        public DbSet<Office> Offices { get; set; }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
+            base.OnModelCreating(modelBuilder);
         }
 
         public static ApplicationDbContext Create()

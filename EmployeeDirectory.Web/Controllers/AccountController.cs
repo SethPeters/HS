@@ -113,7 +113,7 @@ namespace EmployeeDirectory.Web.Controllers
                 if (result.Succeeded)
                 {
                     await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Employees");
                 }
                 AddErrors(result);
             }
@@ -171,7 +171,7 @@ namespace EmployeeDirectory.Web.Controllers
         public ActionResult LogOff()
         {
             AuthenticationManager.SignOut();
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Employees");
         }
 
         #region Helpers
@@ -201,7 +201,7 @@ namespace EmployeeDirectory.Web.Controllers
             {
                 return Redirect(returnUrl);
             }
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Employees");
         }
 
         internal class ChallengeResult : HttpUnauthorizedResult
