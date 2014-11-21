@@ -50,10 +50,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Entities\Employee.cs" />
+    <Compile Include="Entities\EmployeeExt.cs" />
     <Compile Include="Entities\Office.cs" />
-    <Compile Include="IRepository.cs" />
+    <Compile Include="Interfaces\IRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Repository.cs" />
+    <Compile Include="Service\MockDirectoryService.cs" />
+    <Compile Include="Service\Repository.cs" />
+    <Compile Include="Service\DirectoryService.cs" />
+    <Compile Include="Interfaces\IDirectoryService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

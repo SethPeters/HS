@@ -91,3 +91,16 @@ textarea {
 	left: auto;
 	right: 0;
 }
+
+tr.alternate:hover {background-color : #428bca}
+.alternate:nth-child(odd)    { background-color:#eeeeee; }
+.alternate:nth-child(even)   { background-color:#ffffff; }
+tr.alternate > a {
+  color: #000000;
+  text-decoration: none;
+}
+tr.alternate:hover > a,
+tr.alternate:focus > a {
+  color: #ffffff;
+  text-decoration: underline;
+}

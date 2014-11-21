@@ -35,7 +35,6 @@ namespace EmployeeDirectory.Data
             EntitySet.Add(item);
             Context.SaveChanges();
             return item;
-
         }
 
         public virtual T Update(T item)

@@ -7,7 +7,6 @@
 <h2> @Html.DisplayFor(model => model.FirstName) @Html.DisplayFor(model => model.LastName)</h2>
 
 <div>
-    <h4>Employee</h4>
     <hr />
     <dl class="dl-horizontal">
         <dt>
@@ -25,9 +24,19 @@
         <dd>
             @Html.DisplayFor(model => model.Title)
         </dd>
+        @foreach (var info in Model.ExtraInfo)
+        {
+            <dt>
+                @Html.DisplayFor(model => info.ExtraDetailType)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => info.ExtraDetailInfo)
+            </dd>
+        }
     </dl>
 </div>
+
 <p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.EmployeeNo }) |
     @Html.ActionLink("Back to List", "Index")
 </p>

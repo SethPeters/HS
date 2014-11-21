@@ -5,8 +5,7 @@
     ViewBag.Title = "Index";
 }
 
-<h2>Index</h2>
-
+<h2></h2>
 @using (Html.BeginForm())
 { 
 <p>Search: @Html.TextBox("EmployeeSearch")     
@@ -15,20 +14,6 @@
 }
 
 @section scripts {
-<script type="text/javascript">
-    $(function () {
-        $("#EmployeeSearch2").autocomplete({
-            source: "/Employees/AutocompleteSearch",
-            minLength: 1,
-            select: function (event, ui) {
-                if (ui.item) {
-                    $("#EmployeeSearch2").val(ui.item.value);
-                    $("form").submit();
-                }
-            }
-        });
-    });
-</script>
 <script type="text/javascript">
 var url = '@Url.Action("AutocompleteSearch", "Employees")';
 $('#EmployeeSearch').autocomplete({
@@ -74,32 +59,37 @@ function (event, ui) {
         <th>
             @Html.DisplayNameFor(model => model.Title)
         </th>
+@if (Request.IsAuthenticated && User.IsInRole("HR")) {
         <th></th>
+}
     </tr>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.FirstName)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.LastName)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Office.OfficeName)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.Title)
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.EmployeeNo }) |
-            @Html.ActionLink("Details", "Details", new { id=item.EmployeeNo }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.EmployeeNo })
-        </td>
-    </tr>
+        @foreach (var item in Model)
+    {
+            <tr class="alternate" onclick="location.href = '@(Url.Action("Details", "Employees", new { id = item.EmployeeNo }))'">
+                <td>
+                    @Html.DisplayFor(modelItem => item.FirstName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LastName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Office.OfficeName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+@if (Request.IsAuthenticated && User.IsInRole("HR")) {
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = item.EmployeeNo }) |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.EmployeeNo })
+                </td>
 }
+            </tr>
+    }
 
 </table>
+
 
 @Html.PagedListPager((Model as PagedList.IPagedList), page => Url.Action("Index", new { page }))
 

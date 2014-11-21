@@ -10,8 +10,13 @@ using System.Text;
 namespace EmployeeDirectory.Data.Entities
 {
     [DataContract]
-    public class Employee
+    public partial class Employee
     {
+        public Employee()
+        {
+            ExtraInfo = new List<EmployeeExtra>();
+        }
+
         [DataMember]
         [Required]
         [Key]
@@ -37,6 +42,7 @@ namespace EmployeeDirectory.Data.Entities
         public String Title { get; set; }
 
         [DataMember]
+        [DisplayName("Office")]
         public string OfficeId { get; set; }
 
         public virtual Office Office { get; set; }
@@ -51,5 +57,31 @@ namespace EmployeeDirectory.Data.Entities
             get { return FirstName + " " + LastName; }
             private set { value = FirstName + " " + LastName; }
         }
+
+        public virtual ICollection<EmployeeExtra> ExtraInfo { get; set; }
+    }
+
+    [DataContract]
+    public class EmployeeExtra
+    {
+        [DataMember]
+        [Required]
+        [Key, Column(Order = 1)]
+        [DisplayName("Employee Number")]
+        public int EmployeeNo { get; set; }
+
+        [DataMember]
+        [Required]
+        [Key, Column(Order = 2)]
+        [DisplayName("Extra Detail Type")]
+        public string ExtraDetailType { get; set; }
+
+        [DataMember]
+        [Required]
+        [DisplayName("Detail")]
+        [MaxLength(50)]
+        public string ExtraDetailInfo { get; set; }
+
+        public virtual Employee Employee { get; set; }
     }
 }

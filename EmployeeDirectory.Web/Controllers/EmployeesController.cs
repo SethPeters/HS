@@ -1,5 +1,6 @@
 ﻿using EmployeeDirectory.Data;
 using EmployeeDirectory.Data.Entities;
+using EmployeeDirectory.Data.Service;
 using EmployeeDirectory.Web.Models;
 using PagedList;
 using System;
@@ -15,28 +16,26 @@ namespace EmployeeDirectory.Web
 {
     public class EmployeesController : Controller
     {
-        public EmployeesController()
-        {
-            EmployeeRepository = new Repository<Employee>(db);
-            OfficeRepository = new Repository<Office>(db);
-        }
+        //public EmployeesController()
+        //{
+        //    EmployeeRepository = new Repository<Employee>(db);
+        //    OfficeRepository = new Repository<Office>(db);
+        //}
 
-        public EmployeesController(IRepository<Employee> empRepository, Repository<Office> officeRepository)
+        public EmployeesController(IDirectoryService ds)
         {
-            EmployeeRepository = empRepository;
-            OfficeRepository = officeRepository;
+            DirectoryService = ds;
         }
 
         private ApplicationDbContext db = new ApplicationDbContext();
-        private IRepository<Employee> EmployeeRepository;
-        private IRepository<Office> OfficeRepository;
+        private IDirectoryService DirectoryService;
 
         // GET: Employees
         public ActionResult Index(int? page)
         {
             int pageSize = 25;
             int pageNumber = (page ?? 1);
-            return View(EmployeeRepository.Get().OrderBy(a => a.LastName).ThenBy(b => b.FirstName).ToPagedList(pageNumber, pageSize));
+            return View(DirectoryService.GetEmployeesByFilter().ToPagedList(pageNumber, pageSize));
         }
 
         [HttpPost]
@@ -48,13 +47,12 @@ namespace EmployeeDirectory.Web
             {
                 int empNo;
                 int.TryParse(employeeNo, out empNo);
-                return View(EmployeeRepository.Get().Where(x => x.EmployeeNo == empNo).ToPagedList(pageNumber, pageSize));
+                return View(DirectoryService.GetEmployeesByFilter(x => x.EmployeeNo == empNo).ToPagedList(pageNumber, pageSize));
             }
             else
             {
-                return View(EmployeeRepository.Get().Where(x => x.Name.Contains(employeeSearch)).OrderBy(a => a.LastName).ThenBy(b => b.FirstName).ToPagedList(pageNumber, pageSize));            
+                return View(DirectoryService.GetEmployeesByFilter(x => x.Name.Contains(employeeSearch)).ToPagedList(pageNumber, pageSize));
             }
-
         }
 
         // GET: Employees/Details/5
@@ -64,7 +62,7 @@ namespace EmployeeDirectory.Web
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Employee employee = EmployeeRepository.GetByKey(id);
+            Employee employee = DirectoryService.GetEmployee(id.Value);
             if (employee == null)
             {
                 return HttpNotFound();
@@ -73,10 +71,10 @@ namespace EmployeeDirectory.Web
         }
 
         // GET: Employees/Create
-        [Authorize]
+        [Authorize(Roles = "HR")]
         public ActionResult Create()
         {
-            ViewBag.OfficeId = new SelectList(OfficeRepository.EntitySet, "OfficeId", "OfficeName");
+            ViewBag.OfficeId = new SelectList(DirectoryService.GetOffices(), "OfficeId", "OfficeName");
             return View();
         }
 
@@ -85,33 +83,37 @@ namespace EmployeeDirectory.Web
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize]
+        [Authorize(Roles = "HR")]
         public ActionResult Create(Employee employee)
         {
             if (ModelState.IsValid)
             {
-                employee = EmployeeRepository.Add(employee);
+                employee = DirectoryService.AddEmployee(employee);
+                if (employee == null)
+                {
+                    return HttpNotFound();
+                }
                 return RedirectToAction("Details", "Employees", new { id = employee.EmployeeNo });
             }
 
-            ViewBag.OfficeId = new SelectList(OfficeRepository.EntitySet, "OfficeId", "OfficeName", employee.OfficeId);
+            ViewBag.OfficeId = new SelectList(DirectoryService.GetOffices(), "OfficeId", "OfficeName", employee.OfficeId);
             return View(employee);
         }
 
         // GET: Employees/Edit/5
-        [Authorize]
+        [Authorize(Roles = "HR")]
         public ActionResult Edit(int? id)
         {
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Employee employee = EmployeeRepository.GetByKey(id);
+            Employee employee = DirectoryService.GetEmployee(id.Value);
             if (employee == null)
             {
                 return HttpNotFound();
             }
-            ViewBag.OfficeId = new SelectList(OfficeRepository.EntitySet, "OfficeId", "OfficeName", employee.OfficeId);
+            ViewBag.OfficeId = new SelectList(DirectoryService.GetOffices(), "OfficeId", "OfficeName", employee.OfficeId);
             return View(employee);
         }
 
@@ -120,27 +122,31 @@ namespace EmployeeDirectory.Web
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize]
+        [Authorize(Roles = "HR")]
         public ActionResult Edit(Employee employee)
         {
             if (ModelState.IsValid)
             {
-                employee = EmployeeRepository.Update(employee);
-                return RedirectToAction("Details", "Employees", new {id = employee.EmployeeNo});
+                employee = DirectoryService.UpdateEmployee(employee);
+                if (employee == null)
+                {
+                    return HttpNotFound();
+                }
+                return RedirectToAction("Details", "Employees", new { id = employee.EmployeeNo });
             }
-            ViewBag.OfficeId = new SelectList(OfficeRepository.EntitySet, "OfficeId", "OfficeName", employee.OfficeId);
+            ViewBag.OfficeId = new SelectList(DirectoryService.GetOffices(), "OfficeId", "OfficeName", employee.OfficeId);
             return View(employee);
         }
 
         // GET: Employees/Delete/5
-        [Authorize]
+        [Authorize(Roles = "HR")]
         public ActionResult Delete(int? id)
         {
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Employee employee = EmployeeRepository.GetByKey(id);
+            Employee employee = DirectoryService.GetEmployee(id.Value);
             if (employee == null)
             {
                 return HttpNotFound();
@@ -151,17 +157,16 @@ namespace EmployeeDirectory.Web
         // POST: Employees/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize]
+        [Authorize(Roles = "HR")]
         public ActionResult DeleteConfirmed(int id)
         {
-            Employee employee = EmployeeRepository.GetByKey(id);
-            EmployeeRepository.Delete(employee);
+            DirectoryService.DeleteEmployee(id);
             return RedirectToAction("Index");
         }
 
         public JsonResult AutocompleteSearch(string term)
         {
-            var suggestions = EmployeeRepository.Get().ToList().Where(x => x.Name.ToLower().Contains(term.ToLower()));
+            var suggestions = DirectoryService.GetEmployeesByFilter(x => x.Name.ToLower().Contains(term.ToLower()));
             return Json(suggestions, JsonRequestBehavior.AllowGet);
         }
 

@@ -2,6 +2,7 @@
 using Owin;
 
 [assembly: OwinStartupAttribute(typeof(EmployeeDirectory.Web.Startup))]
+
 namespace EmployeeDirectory.Web
 {
     public partial class Startup
